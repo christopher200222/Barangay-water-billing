@@ -1,0 +1,39 @@
+# =====================================================================
+# @@HOSTING  Apache rules for the ONLINE copy (ignored by other servers).
+# - sends everyone to https:// (phones only install the app over https) - except on your own computer (localhost)
+# - blocks folders and file types that must never be opened from a browser
+# =====================================================================
+RewriteEngine On
+
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteCond %{REQUEST_URI} !^/health\.php$
+RewriteCond %{HTTP_HOST} !^(localhost|127\.0\.0\.1|\[::1\])(:[0-9]+)?$ [NC]
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# private folders (database dump, uploaded receipts, tools, editor settings, docker files)
+RewriteRule ^(database|storage|tools|\.vscode|docker)(/|$) - [F,L]
+
+# private files
+<FilesMatch "(\.(sql|md|bat|log|example|yml|yaml)$|^Dockerfile$|^\.git|^\.env)">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# never list folder contents
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "same-origin"
+    # the service worker must always be re-checked so app updates reach phones
+    <Files "sw.js">
+        Header set Cache-Control "no-cache"
+    </Files>
+</IfModule>

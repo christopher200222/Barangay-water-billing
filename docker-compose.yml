@@ -1,0 +1,28 @@
+# Try the whole system on any computer with Docker:   docker compose up --build
+# then open http://localhost:8080  and log in as admin@tigbao.local / Admin-local-1234  (local trial only)
+services:
+  web:
+    build: .
+    ports: ["8080:80"]
+    environment:
+      DB_HOST: db
+      DB_NAME: brgy_tigbao_water
+      DB_USER: tigbao
+      DB_PASS: tigbao-local-pass
+      ADMIN_EMAIL: admin@tigbao.local        # created automatically on first start
+      ADMIN_PASSWORD: Admin-local-1234       # local trial only
+    volumes:
+      - proofs:/var/www/html/storage
+    depends_on: [db]
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: brgy_tigbao_water
+      MARIADB_USER: tigbao
+      MARIADB_PASSWORD: tigbao-local-pass
+      MARIADB_ROOT_PASSWORD: root-local-pass
+    volumes:
+      - dbdata:/var/lib/mysql
+volumes:
+  dbdata:
+  proofs:

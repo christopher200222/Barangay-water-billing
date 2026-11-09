@@ -1,0 +1,7 @@
+.git
+config/local.php
+storage
+*.zip
+backups
+.env
+render.yaml

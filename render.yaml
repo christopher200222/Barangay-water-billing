@@ -1,0 +1,34 @@
+# One-click cloud deploy on Render (https://render.com): New + > Blueprint > pick this repository.
+# Needs a MySQL/MariaDB database from elsewhere (see DEPLOY.md, option A) - put its login in the DB_* values when asked.
+# The disk keeps payment screenshots and profile photos across redeploys (disks need a paid instance type).
+services:
+  - type: web
+    name: tigbao-water
+    runtime: docker
+    plan: starter
+    healthCheckPath: /health.php
+    disk:
+      name: tigbao-storage
+      mountPath: /var/www/html/storage
+      sizeGB: 1
+    envVars:
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASS
+        sync: false
+      - key: DB_SSL
+        value: "true"
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      - key: TIGBAO_SYNC_KEY
+        generateValue: true
+      - key: TZ
+        value: Asia/Manila
